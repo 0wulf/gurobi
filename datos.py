@@ -8,7 +8,9 @@ def load_instance():
     vehiculos = ["CargaPesada", "BusesInterurbanos", "LogisticaLigera"]
     panel_tipos = ["PV_LFP_550", "PV_Bifacial_680"]
     cargador_tipos = ["DC_150kW", "HPC_350kW"]
-    horizonte_dias = 1#30 #365 * 5  # delta : horizonte económico en días
+    #horizonte_dias = 1
+    #horizonte_dias = 30
+    horizonte_dias = 365 * 5  # delta : horizonte económico en días
 
     demanda_diaria = pd.DataFrame(
         {

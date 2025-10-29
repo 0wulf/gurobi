@@ -294,7 +294,10 @@ def solve_and_report():
         for t in horas
         for v in vehiculos
     )
-    print(f"\nCosto de penalización por día: {penalizacion_total:,.0f} CLP")
+    print(f"\nCosto de penalización por día: {penalizacion_total:,.0f} CLP\n")
+
+    print("===================================================================")
+
 
 
 if __name__ == "__main__":
