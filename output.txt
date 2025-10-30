@@ -1,0 +1,56 @@
+Estructura del modelo:
+
+Variables totales: 309 = 9 binarias + 12 enteras + 288 continuas
+
+Restricciones totales: 373
+  - balance_energia: 72
+
+  - cargador_capacidad: 6
+
+  - cargador_potencia: 72
+
+  - demanda_maxima: 216
+
+  - panel_capacidad: 6
+
+  - presupuesto_capex: 1
+
+Status del modelo: OPTIMAL
+
+GAP relativo: 0.000%
+
+Utilidad óptima (horizonte 1825 días): 107,118 UF
+
+Energía total servida por día: 14,567.4 kWh
+
+Energía comprada a la red por día: 5,463.0 kWh (37.5% de la energía servida)
+
+Energía cubierta por generación solar estimada por día: 9,104.5 kWh
+
+Gasto CAPEX / Inversión: 30,313 UF (100.0% del presupuesto)
+
+
+Decisiones de inversión por ubicación:
+             Activo  Paneles_PV_LFP_550  Paneles_PV_Bifacial_680  Cargadores_DC_150kW  Cargadores_HPC_350kW
+ubicación
+Antofagasta       1                 839                        0                    0                     2
+Copiapo           1                   0                        0                    1                     0
+Taltal            1                1161                        0                    1                     2
+
+Energía servida por día (kWh) por ubicación y segmento:
+             Pesado  Mediano  Ligero
+Antofagasta  3200.0   1400.0   800.0
+Copiapo      1100.0    389.8   177.6
+Taltal       4600.0   1800.0  1100.0
+Total        8900.0   3589.8  2077.6
+
+Demanda no satisfecha por día (kWh) por ubicación y segmento:
+             Pesado  Mediano  Ligero
+Antofagasta     0.0      0.0    -0.0
+Copiapo         0.0     10.2    72.4
+Taltal          0.0      0.0     0.0
+Total           0.0     10.2    72.4
+
+Costo de penalización por día: 1 UF
+
+===================================================================

@@ -192,8 +192,7 @@ def solve_and_report():
     }
     status = status_labels.get(model.Status, f"STATUS_{model.Status}")
     print(f"Status del modelo: {status}\n")
-    
-    print(f"Tiempo de resolución: {model.Runtime:.2f} s\n")
+
     
     if model.IsMIP:
         print(f"GAP relativo: {model.MIPGap:.3%}\n")
@@ -234,7 +233,7 @@ def solve_and_report():
     )
     solar_servido = max(total_servido - total_comprado, 0.0)
 
-    print(f"Utilidad óptima (horizonte {horizonte_dias} días): {valor_objetivo:,.0f} CLP\n")
+    print(f"Utilidad óptima (horizonte {horizonte_dias} días): {valor_objetivo:,.0f} UF\n")
     print(f"Energía total servida por día: {total_servido:,.1f} kWh\n")
     if total_servido > 0:
         coeficiente_matriz = total_comprado / total_servido
@@ -246,7 +245,7 @@ def solve_and_report():
     )
     print(f"Energía cubierta por generación solar estimada por día: {solar_servido:,.1f} kWh\n")
     print(
-        f"Gasto CAPEX / Inversión: {capex_gastado:,.0f} CLP "
+        f"Gasto CAPEX / Inversión: {capex_gastado:,.0f} UF "
         f"({capex_gastado / presupuesto_capex:.1%} del presupuesto)\n"
     )
 
@@ -294,7 +293,7 @@ def solve_and_report():
         for t in horas
         for v in vehiculos
     )
-    print(f"\nCosto de penalización por día: {penalizacion_total:,.0f} CLP\n")
+    print(f"\nCosto de penalización por día: {penalizacion_total:,.0f} UF\n")
 
     print("===================================================================")
 
@@ -302,5 +301,3 @@ def solve_and_report():
 
 if __name__ == "__main__":
     solve_and_report()
-
-

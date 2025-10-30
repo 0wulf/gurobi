@@ -1,54 +1,36 @@
 import numpy as np
 import pandas as pd
 
-
 def load_instance():
-    ubicaciones = ["Copiapo", "Chañaral", "Taltal", "Antofagasta"]
+    
+    valor_UF = 39587.48   #al momento de hacer los datos este ees el valor de la UF pero, puede cambiar y se espera que cambie
+
+    # --- Conjuntos ---
+    ubicaciones = ["Antofagasta","Copiapo", "Taltal", ]
     horas = list(range(24))
-    vehiculos = ["CargaPesada", "BusesInterurbanos", "LogisticaLigera"]
+    vehiculos = ["Pesado", "Mediano", "Ligero"]
     panel_tipos = ["PV_LFP_550", "PV_Bifacial_680"]
     cargador_tipos = ["DC_150kW", "HPC_350kW"]
-    #horizonte_dias = 1
-    #horizonte_dias = 30
-    horizonte_dias = 365 * 5  # delta : horizonte económico en días
+    horizonte_dias = 365 * 5  # 5 años en dias 
 
+    
     demanda_diaria = pd.DataFrame(
         {
-            "CargaPesada": [2600, 1900, 2100, 3050],
-            "BusesInterurbanos": [1150, 720, 840, 980],
-            "LogisticaLigera": [620, 460, 510, 730],
+            "Pesado": [3200, 1100, 4600],
+            "Mediano": [1400, 400, 1800],
+            "Ligero": [800, 250, 1100],
         },
         index=ubicaciones,
     )
-    demanda_perfil = np.array(
-        [
-            0.015,
-            0.012,
-            0.010,
-            0.010,
-            0.012,
-            0.020,
-            0.035,
-            0.055,
-            0.070,
-            0.085,
-            0.095,
-            0.100,
-            0.100,
-            0.095,
-            0.085,
-            0.070,
-            0.055,
-            0.040,
-            0.028,
-            0.018,
-            0.012,
-            0.010,
-            0.010,
-            0.008,
-        ]
-    )
-    demanda_perfil = demanda_perfil / demanda_perfil.sum()
+
+    # Perfil horario 
+    demanda_perfil = np.array([
+        0.005, 0.004, 0.004, 0.005, 0.015, 0.035, 0.070, 0.090,
+        0.100, 0.110, 0.110, 0.095, 0.085, 0.080, 0.070, 0.055,
+        0.040, 0.030, 0.020, 0.015, 0.010, 0.007, 0.005, 0.004,
+    ])
+    demanda_perfil /= demanda_perfil.sum()
+
     demanda = {
         (i, t, v): float(demanda_diaria.loc[i, v] * demanda_perfil[t])
         for i in ubicaciones
@@ -56,154 +38,101 @@ def load_instance():
         for t in horas
     }
 
+
     precio_venta = {
-        "CargaPesada": 320.0,
-        "BusesInterurbanos": 285.0,
-        "LogisticaLigera": 255.0,
+        "Pesado": 320 / valor_UF,
+        "Mediano": 285 / valor_UF,
+        "Ligero": 255 / valor_UF,
     }
     costo_operativo = {
-        "CargaPesada": 45.0,
-        "BusesInterurbanos": 38.0,
-        "LogisticaLigera": 32.0,
+        "Pesado": 45 / valor_UF,
+        "Mediano": 38 / valor_UF,
+        "Ligero": 32 / valor_UF,
     }
 
-    matriz_base = np.array(
-        [
-            118,
-            115,
-            112,
-            110,
-            108,
-            105,
-            102,
-            98,
-            95,
-            94,
-            92,
-            90,
-            92,
-            95,
-            100,
-            108,
-            120,
-            132,
-            140,
-            148,
-            150,
-            146,
-            135,
-            125,
-        ]
-    )
-    matriz_ponderadores = {
-        "Copiapo": 1.00,
-        "Chañaral": 1.03,
-        "Taltal": 1.05,
-        "Antofagasta": 1.08,
-    }
+    precio_base_hora = np.array([
+        100,100,100,100,110,110,130,130,140,140,140,140,
+        140,140,165,165,165,165,165,165,140,120,120,100
+    ])
+    matriz_prioridad = {"Copiapo": 1, "Taltal": 1.04, "Antofagasta": 1.08}
     matriz_precios = {
-        (i, t): float(matriz_base[t] * matriz_ponderadores[i]) for i in ubicaciones for t in horas
+        (i, t): float(precio_base_hora[t] * matriz_prioridad[i] / valor_UF)
+        for i in ubicaciones
+        for t in horas
     }
 
-    perfil_solar = np.array(
-        [
-            0.00,
-            0.00,
-            0.00,
-            0.00,
-            0.05,
-            0.12,
-            0.28,
-            0.52,
-            0.72,
-            0.86,
-            0.96,
-            1.00,
-            0.96,
-            0.88,
-            0.75,
-            0.58,
-            0.38,
-            0.18,
-            0.06,
-            0.00,
-            0.00,
-            0.00,
-            0.00,
-            0.00,
-        ]
-    )
-    panel_peak_output = {
-        "PV_LFP_550": 0.55,
-        "PV_Bifacial_680": 0.74,
-    }
+    
+    perfil_solar = np.array([
+        0,0,0,0,0.05,0.12,0.28,0.52,0.72,0.86,0.96,1.00,
+        0.96,0.88,0.75,0.58,0.38,0.18,0.06,0,0,0,0,0
+    ])
+    panel_peak_output = {"PV_LFP_550": 0.55, "PV_Bifacial_680": 0.74}
     generacion_solar = {
         (a, t): float(perfil_solar[t] * panel_peak_output[a])
         for a in panel_tipos
         for t in horas
     }
 
+
     panel_capacidad = pd.DataFrame(
         {
-            "PV_LFP_550": [1800, 1400, 1500, 2100],
-            "PV_Bifacial_680": [1500, 1100, 1200, 1800],
+            "PV_LFP_550": [1600, 900, 2200],
+            "PV_Bifacial_680": [1300, 700, 1900],
         },
         index=ubicaciones,
     )
     panel_fijo = pd.DataFrame(
         {
-            "PV_LFP_550": [180_000_000, 145_000_000, 150_000_000, 210_000_000],
-            "PV_Bifacial_680": [205_000_000, 165_000_000, 170_000_000, 235_000_000],
+            "PV_LFP_550": [160_000_000 / valor_UF, 85_000_000 / valor_UF, 240_000_000 / valor_UF],
+            "PV_Bifacial_680": [185_000_000 / valor_UF, 100_000_000 / valor_UF, 270_000_000 / valor_UF],
         },
         index=ubicaciones,
     )
     panel_capex = {
-        "PV_LFP_550": 280_000.0,
-        "PV_Bifacial_680": 355_000.0,
+        "PV_LFP_550": 280_000 / valor_UF,
+        "PV_Bifacial_680": 355_000 / valor_UF,
     }
     panel_om = {
-        "PV_LFP_550": 14_000.0,
-        "PV_Bifacial_680": 18_500.0,
+        "PV_LFP_550": 14_000 / valor_UF,
+        "PV_Bifacial_680": 18_500/ valor_UF,
     }
+
 
     cargador_capacidad = pd.DataFrame(
         {
-            "DC_150kW": [8, 6, 7, 10],
-            "HPC_350kW": [5, 3, 4, 6],
+            "DC_150kW": [7, 3, 11],
+            "HPC_350kW": [4, 1, 6],
         },
         index=ubicaciones,
     )
     cargador_capex = {
-        "DC_150kW": 26_000_000.0,
-        "HPC_350kW": 47_000_000.0,
+        "DC_150kW": 26_000_000 / valor_UF,
+        "HPC_350kW": 47_000_000/ valor_UF,
     }
-    cargador_potencia_nominal = {
-        "DC_150kW": 150.0,
-        "HPC_350kW": 350.0,
-    }
+    cargador_potencia_nominal = {"DC_150kW": 150, "HPC_350kW": 350}
     cargador_potencia = {
         (k, t): cargador_potencia_nominal[k] for k in cargador_tipos for t in horas
     }
 
+  
     penalizacion_base = {
-        "CargaPesada": 420.0,
-        "BusesInterurbanos": 360.0,
-        "LogisticaLigera": 305.0,
+        "Pesado": 420 / valor_UF,
+        "Mediano": 340/ valor_UF,
+        "Ligero": 290 / valor_UF,
     }
-    prioridad_ubicacion = {
-        "Copiapo": 1.00,
-        "Chañaral": 1.05,
-        "Taltal": 1.10,
-        "Antofagasta": 1.15,
-    }
+    prioridad_ubicacion = {"Copiapo": 1.00, "Taltal": 1.08, "Antofagasta": 1.15}
     penalizacion = {
-        (i, t, v): float(penalizacion_base[v] * prioridad_ubicacion[i] * (1 + 0.4 * demanda_perfil[t]))
+        (i, t, v): float(
+            penalizacion_base[v] * prioridad_ubicacion[i] * (1 + 0.4 * demanda_perfil[t])
+        )
         for i in ubicaciones
         for v in vehiculos
         for t in horas
     }
 
-    presupuesto_capex = 8_200_000_000.0
+    
+    presupuesto_capex = 1_200_000_000.0 / valor_UF  
+
 
     demanda_resumen = (
         pd.Series(demanda).groupby(level=[0, 2]).sum().unstack().round(1)
@@ -234,4 +163,5 @@ def load_instance():
         "penalizacion": penalizacion,
         "presupuesto_capex": presupuesto_capex,
         "demanda_resumen": demanda_resumen,
+        "valor_UF": valor_UF,
     }
